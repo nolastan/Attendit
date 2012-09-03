@@ -253,3 +253,18 @@ ul.images li.selected{
 	font-size:70%;
 	margin:.5em 0;
 }
+
+
+/*CUSTOM */
+
+.present{
+	background-color: green;
+	color: #fff;
+}
+.unexcused, .absent{
+	background-color: red;
+	color: #fff;
+}
+.excused{
+	background-color: yellow;
+}

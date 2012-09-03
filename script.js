@@ -28,26 +28,46 @@ $(document).ready(function(){
 		});
 		
 	$("#new_event_btn").click(function(){
-		$("#event").show();
+		// if there is already a current event:
+		$.post("get_current_event.php", { userid: $.cookie('userid') }, function(data) {
+		   	if(data == "false"){
+				// if no current event:
+				$("#page").html('<form name="new_event" id="new_event"> \
+					<fieldset> \
+						<legend>New Attendance Sheet</legend> \
+						<label for="name">Name of Event:</label><input type="text" name="name" class="name" /><br /> \
+						<label for="date">Date:</label><input type="text" name="date" class="date" /><br /> \
+						<label for="mandatory">Mandatory:</label><input type="checkbox" name="mandatory" class="mandatory" /><br /> \
+						<input type="submit" value="Create Attendance Sheet" /> \
+					</fieldset>	\
+				</form>');
+				$("#new_event").submit(function(){
+					if($("#event form .mandatory").is(':checked')){
+						mandatory = 1;
+					}else{
+						mandatory = 0;
+					}
+					$.post("new_event.php", { name: $("#new_event .name").val(), mandatory: mandatory, date: $("#new_event .date").val(), userid: $.cookie('userid') }, function(data) {
+					   	if(data == "false"){
+							alert("Error");
+						}else{
+							createEvent(data);
+						}
+					 });				
+					return false;
+
+				});				
+			}else{
+				takeAttendance(data);
+			}
+		 });				
+		
+		
+
 	})
 		
 	$("#archives_btn").click(function(){
-		$.post("archives.php", { userid: $.cookie('userid') }, function(data) {
-			$("#archives").html(data);
-			$(".delete").click(function(){
-				event = $(this).parent().attr('id');
-				parent_li = $(this).parent();
-				$.post("delete_event.php", { event: event }, function(data) {
-				   	if(data == "false"){
-						alert("Error");
-					}else{
-						parent_li.fadeOut();
-					}
-				 });				
-				return false;
-			});
-			
-		 });				
+		showArchives();
 		return false;		
 	});
 		
@@ -72,35 +92,44 @@ $(document).ready(function(){
 		 });				
 		return false;
 	});
-	
-	$("#event form").submit(function(){
-		if($("#event form .mandatory").is(':checked')){
-			mandatory = 1;
-		}else{
-			mandatory = 0;
-		}
-		$.post("new_event.php", { name: $("#event form .name").val(), mandatory: mandatory, date: $("#event form .date").val(), userid: $.cookie('userid') }, function(data) {
-		   	if(data == "false"){
-				alert("Error");
-			}else{
-				createEvent();
-			}
-		 });				
-		return false;
-		
-	});
 
 	$("#edit_roster_btn").click(function(){
 		loadRoster();
 		return false;
 	});
 	
-	function createEvent(){
-		alert("yay!");
+	function showArchives(){
+		$.post("archives.php", { userid: $.cookie('userid') }, function(data) {
+			$("#page").html(data);
+			$(".delete").click(function(){
+				event = $(this).parent().attr('id');
+				parent_li = $(this).parent();
+				$.post("delete_event.php", { event: event }, function(data) {
+				   	if(data == "false"){
+						alert("Error");
+					}else{
+						parent_li.fadeOut();
+					}
+				 });				
+				return false;
+			});
+			
+		 });
+	}
+	
+	function createEvent(id){
+		takeAttendance(id);		
 	}
 	
 	function showArchivedEvent(){
 		
+	}
+	
+	function takeAttendance(event_id){
+		$.post("take_attendance.php", { userid: $.cookie('userid'), event_id: event_id }, function(data) {
+			$('#page').html(data);
+		 });				
+		return false;		
 	}
 	
 	function loadRoster(){
@@ -108,7 +137,7 @@ $(document).ready(function(){
 		   	if(data == "false"){
 				alert("Shit broke");
 			}else{
-				$("#edit_roster").html(data);
+				$("#page").html(data);
 				$("#add_member").hide();
 				$("#add_member_btn").click(function(){
 					$("#add_member").slideDown();
@@ -134,6 +163,11 @@ $(document).ready(function(){
 						}
 					 });				
 					return false;
+				});
+				$("ul.roster li a.name").click(function(){
+					$.post("profile.php", { id: $(this).parent().attr('id'), name: $(this).html() }, function(data) {
+					   	$("#page").html(data);
+					 });
 				});
 			}
 		 });				

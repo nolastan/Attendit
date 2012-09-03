@@ -1,4 +1,4 @@
-<ul>
+<ul id="archives_list">
 <?php
 
 foreach ($_POST as $k=>$v) { 
@@ -13,3 +13,13 @@ while($event = mysql_fetch_array($result)){ ?>
 	<li id="<?= $event['id'] ?>"><a class="event"><?= $event['name'] ?></a> <span class="email"><?= $event['date'] ?></span><a class="delete">[x]</a></li>
 <?php } ?>
 </ul>
+
+<script type="text/javascript">
+$(document).ready(function(){
+	$("#archives_list li").click(function(){
+		$.post("archived_event.php", { event_id: $(this).attr('id') }, function(data) {
+		   	$("#page").html(data);
+		 });
+	});
+});
+</script>

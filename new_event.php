@@ -6,7 +6,7 @@ foreach ($_POST as $k=>$v) {
 $sqlserver=mysql_connect('localhost','root','root');
 mysql_select_db('attendit',$sqlserver);
 
-$query = "insert into events values ('', '".$_POST['name']."', '".$_POST['mandatory']."', '".$_POST['date']."', '".$_POST['userid']."')";
+$query = "insert into events values ('', '".$_POST['name']."', '".$_POST['mandatory']."', '".$_POST['date']."', '".$_POST['userid']."', '0')";
 mysql_query($query, $sqlserver) or die('false');
 
 echo mysql_insert_id();
